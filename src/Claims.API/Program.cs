@@ -1,5 +1,6 @@
 using Claims.Application.Claims;
 using Claims.Application.Customers;
+using Claims.Application.Policies;
 using Claims.Infrastructure.Persistence;
 using Claims.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 builder.Services.AddScoped<ClaimService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
+builder.Services.AddScoped<PolicyService>();
 
 var app = builder.Build();
 
