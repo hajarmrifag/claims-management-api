@@ -1,4 +1,5 @@
 using Claims.Application.Claims;
+using Claims.Application.Customers;
 using Claims.Infrastructure.Persistence;
 using Claims.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<ClaimsDbContext>(options =>
 
 builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 builder.Services.AddScoped<ClaimService>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<CustomerService>();
 
 var app = builder.Build();
 
