@@ -1,3 +1,4 @@
+using Claims.API.Exceptions;
 using Claims.Application.Claims;
 using Claims.Application.Customers;
 using Claims.Application.Policies;
@@ -27,6 +28,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
