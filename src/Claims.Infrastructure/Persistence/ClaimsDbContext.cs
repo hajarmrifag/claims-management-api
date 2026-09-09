@@ -15,4 +15,5 @@ public class ClaimsDbContext : DbContext
     public DbSet<Claim> Claims => Set<Claim>();
     public DbSet<ClaimDocument> ClaimDocuments => Set<ClaimDocument>();
     public DbSet<ClaimStatusHistory> ClaimStatusHistories => Set<ClaimStatusHistory>();
+    public DbSet<User> Users => Set<User>();
 }
