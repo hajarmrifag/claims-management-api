@@ -10,6 +10,9 @@ namespace Claims.IntegrationTests;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _databaseName =
+        $"ClaimsIntegrationTests-{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -18,8 +21,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<IDbContextOptionsConfiguration<ClaimsDbContext>>();
 
             services.AddDbContext<ClaimsDbContext>(options =>
-                options.UseInMemoryDatabase(
-                    $"ClaimsIntegrationTests-{Guid.NewGuid()}"));
+                options.UseInMemoryDatabase(_databaseName));
         });
     }
 }
