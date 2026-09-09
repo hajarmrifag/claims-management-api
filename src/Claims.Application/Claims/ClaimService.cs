@@ -35,6 +35,24 @@ public class ClaimService
         await _repository.AddAsync(claim, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
+        return ToResponse(claim);
+    }
+
+    public async Task<ClaimResponse?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var claim = await _repository.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        return claim is null
+            ? null
+            : ToResponse(claim);
+    }
+
+    private static ClaimResponse ToResponse(Claim claim)
+    {
         return new ClaimResponse(
             claim.Id,
             claim.ClaimNumber,

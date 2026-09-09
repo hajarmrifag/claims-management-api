@@ -27,4 +27,21 @@ public class ClaimsController : ControllerBase
             $"/api/claims/{claim.Id}",
             claim);
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ClaimResponse>> GetClaimById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var claim = await _claimService.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        if (claim is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(claim);
+    }
 }
