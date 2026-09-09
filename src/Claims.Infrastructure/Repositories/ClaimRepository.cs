@@ -1,5 +1,6 @@
 using Claims.Application.Claims;
 using Claims.Domain.Entities;
+using Claims.Domain.Enums;
 using Claims.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,46 @@ public class ClaimRepository : IClaimRepository
             .FirstOrDefaultAsync(
                 claim => claim.ClaimNumber == claimNumber,
                 cancellationToken);
+    }
+
+    public async Task<(IReadOnlyList<Claim> Items, int TotalCount)> SearchAsync(
+        ClaimQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var claims = _dbContext.Claims
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Status) &&
+            Enum.TryParse<ClaimStatus>(
+                query.Status,
+                true,
+                out var status))
+        {
+            claims = claims.Where(claim => claim.Status == status);
+        }
+
+        if (query.FromDate.HasValue)
+        {
+            claims = claims.Where(
+                claim => claim.SubmittedAt >= query.FromDate.Value);
+        }
+
+        if (query.ToDate.HasValue)
+        {
+            claims = claims.Where(
+                claim => claim.SubmittedAt <= query.ToDate.Value);
+        }
+
+        var totalCount = await claims.CountAsync(cancellationToken);
+
+        var items = await claims
+            .OrderByDescending(claim => claim.SubmittedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task AddAsync(

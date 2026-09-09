@@ -44,4 +44,16 @@ public class ClaimsController : ControllerBase
 
         return Ok(claim);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<ClaimResponse>>> SearchClaims(
+        [FromQuery] ClaimQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _claimService.SearchAsync(
+            query,
+            cancellationToken);
+
+        return Ok(result);
+    }
 }

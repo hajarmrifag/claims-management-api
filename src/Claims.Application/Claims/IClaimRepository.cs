@@ -4,10 +4,16 @@ namespace Claims.Application.Claims;
 
 public interface IClaimRepository
 {
-    Task<Claim?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Claim?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 
     Task<Claim?> GetByClaimNumberAsync(
         string claimNumber,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<Claim> Items, int TotalCount)> SearchAsync(
+        ClaimQuery query,
         CancellationToken cancellationToken = default);
 
     Task AddAsync(

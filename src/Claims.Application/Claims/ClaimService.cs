@@ -51,6 +51,38 @@ public class ClaimService
             : ToResponse(claim);
     }
 
+    public async Task<PagedResult<ClaimResponse>> SearchAsync(
+        ClaimQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var page = Math.Max(query.Page, 1);
+        var pageSize = Math.Clamp(query.PageSize, 1, 100);
+
+        var normalizedQuery = query with
+        {
+            Page = page,
+            PageSize = pageSize
+        };
+
+        var (items, totalCount) = await _repository.SearchAsync(
+            normalizedQuery,
+            cancellationToken);
+
+        var responses = items
+            .Select(ToResponse)
+            .ToList();
+
+        var totalPages = (int)Math.Ceiling(
+            totalCount / (double)pageSize);
+
+        return new PagedResult<ClaimResponse>(
+            responses,
+            page,
+            pageSize,
+            totalCount,
+            totalPages);
+    }
+
     private static ClaimResponse ToResponse(Claim claim)
     {
         return new ClaimResponse(
