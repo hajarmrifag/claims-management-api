@@ -20,6 +20,10 @@ public interface IClaimRepository
         Claim claim,
         CancellationToken cancellationToken = default);
 
+    Task AddStatusHistoryAsync(
+        ClaimStatusHistory history,
+        CancellationToken cancellationToken = default);
+
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }

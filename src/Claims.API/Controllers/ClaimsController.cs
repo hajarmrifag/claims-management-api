@@ -56,4 +56,23 @@ public class ClaimsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPatch("{id:guid}/status")]
+    public async Task<ActionResult<ClaimResponse>> UpdateClaimStatus(
+        Guid id,
+        UpdateClaimStatusRequest request,
+        CancellationToken cancellationToken)
+    {
+        var claim = await _claimService.UpdateStatusAsync(
+            id,
+            request,
+            cancellationToken);
+
+        if (claim is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(claim);
+    }
 }

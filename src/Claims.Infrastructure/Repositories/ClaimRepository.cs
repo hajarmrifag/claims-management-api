@@ -84,6 +84,15 @@ public class ClaimRepository : IClaimRepository
             cancellationToken);
     }
 
+    public async Task AddStatusHistoryAsync(
+        ClaimStatusHistory history,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbContext.ClaimStatusHistories.AddAsync(
+            history,
+            cancellationToken);
+    }
+
     public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {

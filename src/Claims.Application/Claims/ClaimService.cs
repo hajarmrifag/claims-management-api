@@ -1,4 +1,5 @@
 using Claims.Domain.Entities;
+using Claims.Domain.Enums;
 
 namespace Claims.Application.Claims;
 
@@ -81,6 +82,52 @@ public class ClaimService
             pageSize,
             totalCount,
             totalPages);
+    }
+
+    public async Task<ClaimResponse?> UpdateStatusAsync(
+        Guid id,
+        UpdateClaimStatusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var claim = await _repository.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        if (claim is null)
+        {
+            return null;
+        }
+
+        if (!Enum.TryParse<ClaimStatus>(
+                request.Status,
+                true,
+                out var newStatus))
+        {
+            throw new ArgumentException(
+                $"Invalid claim status '{request.Status}'.");
+        }
+
+        var previousStatus = claim.Status;
+
+        if (previousStatus == newStatus)
+        {
+            return ToResponse(claim);
+        }
+
+        claim.UpdateStatus(newStatus);
+
+        var history = new ClaimStatusHistory(
+            claim.Id,
+            previousStatus,
+            newStatus);
+
+        await _repository.AddStatusHistoryAsync(
+            history,
+            cancellationToken);
+
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(claim);
     }
 
     private static ClaimResponse ToResponse(Claim claim)
