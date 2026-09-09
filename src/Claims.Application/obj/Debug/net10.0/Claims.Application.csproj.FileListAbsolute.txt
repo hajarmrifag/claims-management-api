@@ -1,0 +1,15 @@
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/bin/Debug/net10.0/Claims.Application.deps.json
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/bin/Debug/net10.0/Claims.Application.dll
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/bin/Debug/net10.0/Claims.Application.pdb
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/bin/Debug/net10.0/Claims.Domain.dll
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/bin/Debug/net10.0/Claims.Domain.pdb
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.csproj.AssemblyReference.cache
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.AssemblyInfoInputs.cache
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.AssemblyInfo.cs
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.csproj.CoreCompileInputs.cache
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.A.5E362BE9.Up2Date
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.dll
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/refint/Claims.Application.dll
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/Claims.Application.pdb
+/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.Application/obj/Debug/net10.0/ref/Claims.Application.dll

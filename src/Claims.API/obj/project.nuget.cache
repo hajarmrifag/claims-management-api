@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Vx9Cu+9qjLE=",
+  "success": true,
+  "projectFilePath": "/Users/hajarmrifag/Desktop/claims-management-api/src/Claims.API/Claims.API.csproj",
+  "expectedPackageFiles": [
+    "/Users/hajarmrifag/.nuget/packages/microsoft.aspnetcore.openapi/10.0.12/microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",
+    "/Users/hajarmrifag/.nuget/packages/microsoft.openapi/2.12.0/microsoft.openapi.2.12.0.nupkg.sha512"
+  ],
+  "logs": []
+}
