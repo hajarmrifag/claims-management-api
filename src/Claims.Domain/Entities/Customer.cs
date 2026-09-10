@@ -10,7 +10,7 @@ public class Customer
 
     public string Email { get; private set; } = string.Empty;
 
-    public string PhoneNumber { get; private set; } = string.Empty;
+    public string? PhoneNumber { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
 
@@ -22,7 +22,7 @@ public class Customer
         string firstName,
         string lastName,
         string email,
-        string phoneNumber)
+        string? phoneNumber)
     {
         Id = Guid.NewGuid();
         FirstName = firstName;

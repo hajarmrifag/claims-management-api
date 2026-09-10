@@ -29,6 +29,11 @@ public class CustomersApiTests :
             "/api/customers",
             request);
 
+        var body = await response.Content.ReadAsStringAsync();
+
+        Console.WriteLine($"STATUS: {response.StatusCode}");
+        Console.WriteLine($"BODY: {body}");
+
         Assert.Equal(
             HttpStatusCode.Created,
             response.StatusCode);
