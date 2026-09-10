@@ -93,7 +93,7 @@ Uploads are limited to **10 MB**.
 
 Document metadata is persisted with EF Core while physical storage is accessed through an `IFileStorage` abstraction.
 
-The current development implementation uses local file storage. The abstraction is designed so an **Azure Blob Storage** implementation can replace it without changing the application layer.
+The application supports both **local file storage** and **Azure Blob Storage** behind the same `IFileStorage` abstraction. The provider is selected through configuration, so the application layer remains unchanged.
 
 Uploaded documents can also be downloaded through authenticated API endpoints.
 
@@ -279,7 +279,6 @@ It demonstrates:
 
 ## Planned Improvements
 
-- Azure Blob Storage implementation
 - Azure SQL deployment
 - API deployment to Azure
 - database performance benchmarking
