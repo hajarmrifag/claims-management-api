@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using System.Text;
 using Claims.API.Auth;
 using Claims.API.Exceptions;
@@ -37,7 +38,34 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+var storageProvider =
+    builder.Configuration["Storage:Provider"] ?? "Local";
+
+if (storageProvider.Equals(
+        "AzureBlob",
+        StringComparison.OrdinalIgnoreCase))
+{
+    var blobConnectionString =
+        builder.Configuration["Storage:ConnectionString"]
+        ?? throw new InvalidOperationException(
+            "Azure Blob Storage connection string is not configured.");
+
+    var containerName =
+        builder.Configuration["Storage:ContainerName"]
+        ?? "claim-documents";
+
+    builder.Services.AddSingleton(
+        new BlobContainerClient(
+            blobConnectionString,
+            containerName));
+
+    builder.Services.AddScoped<IFileStorage, AzureBlobFileStorage>();
+}
+else
+{
+    builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+}
+
 builder.Services.AddScoped<ClaimDocumentService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
