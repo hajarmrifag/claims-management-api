@@ -20,6 +20,8 @@ public class ClaimsApiTests :
     [Fact]
     public async Task ClaimWorkflow_ShouldCreateAndRetrieveClaim()
     {
+        await TestAuthHelper.AuthenticateAsync(_client);
+
         var customerRequest = new
         {
             firstName = "Test",

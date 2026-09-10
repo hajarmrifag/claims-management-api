@@ -1,9 +1,11 @@
 using Claims.Application.Policies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Claims.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class PoliciesController : ControllerBase
 {

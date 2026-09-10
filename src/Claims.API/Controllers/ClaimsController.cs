@@ -1,9 +1,11 @@
 using Claims.Application.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Claims.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class ClaimsController : ControllerBase
 {
@@ -58,6 +60,7 @@ public class ClaimsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/status")]
+    [Authorize(Roles = "Manager,Admin")]
     public async Task<ActionResult<ClaimResponse>> UpdateClaimStatus(
         Guid id,
         UpdateClaimStatusRequest request,
