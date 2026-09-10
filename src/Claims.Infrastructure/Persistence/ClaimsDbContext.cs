@@ -16,4 +16,12 @@ public class ClaimsDbContext : DbContext
     public DbSet<ClaimDocument> ClaimDocuments => Set<ClaimDocument>();
     public DbSet<ClaimStatusHistory> ClaimStatusHistories => Set<ClaimStatusHistory>();
     public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(ClaimsDbContext).Assembly);
+
+        base.OnModelCreating(modelBuilder);
+    }
 }

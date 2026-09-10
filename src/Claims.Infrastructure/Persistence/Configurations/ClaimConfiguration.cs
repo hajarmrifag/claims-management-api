@@ -36,6 +36,8 @@ public class ClaimConfiguration : IEntityTypeConfiguration<Claim>
             x.SubmittedAt
         });
 
+        builder.HasIndex(x => x.SubmittedAt);
+
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(x => x.CustomerId)
