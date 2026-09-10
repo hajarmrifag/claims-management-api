@@ -1,6 +1,7 @@
 using System.Text;
 using Claims.API.Auth;
 using Claims.API.Exceptions;
+using Claims.API.Middleware;
 using Claims.Application.Auth;
 using Claims.Application.Claims;
 using Claims.Application.Customers;
@@ -79,6 +80,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
