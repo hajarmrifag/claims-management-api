@@ -69,3 +69,40 @@ a {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.api-status button {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #cbd3df;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.status-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #8b95a7;
+}
+
+.status-dot--success {
+  background: #168a55;
+}
+
+.status-dot--error {
+  background: #c03d3d;
+}
+
+.status-dot--checking {
+  background: #d19a24;
+}
