@@ -4,8 +4,10 @@ using Claims.API.Exceptions;
 using Claims.Application.Auth;
 using Claims.Application.Claims;
 using Claims.Application.Customers;
+using Claims.Application.Documents;
 using Claims.Application.Policies;
 using Claims.Infrastructure.Auth;
+using Claims.Infrastructure.Documents;
 using Claims.Infrastructure.Persistence;
 using Claims.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,6 +36,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+builder.Services.AddScoped<ClaimDocumentService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT signing key is not configured.");

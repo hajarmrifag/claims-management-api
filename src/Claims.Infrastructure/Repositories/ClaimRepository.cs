@@ -75,6 +75,17 @@ public class ClaimRepository : IClaimRepository
         return (items, totalCount);
     }
 
+    public async Task<ClaimDocument?> GetDocumentByIdAsync(
+        Guid documentId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.ClaimDocuments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                document => document.Id == documentId,
+                cancellationToken);
+    }
+
     public async Task AddAsync(
         Claim claim,
         CancellationToken cancellationToken = default)
@@ -90,6 +101,15 @@ public class ClaimRepository : IClaimRepository
     {
         await _dbContext.ClaimStatusHistories.AddAsync(
             history,
+            cancellationToken);
+    }
+
+    public async Task AddDocumentAsync(
+        ClaimDocument document,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbContext.ClaimDocuments.AddAsync(
+            document,
             cancellationToken);
     }
 

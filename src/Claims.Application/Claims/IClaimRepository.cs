@@ -16,12 +16,20 @@ public interface IClaimRepository
         ClaimQuery query,
         CancellationToken cancellationToken = default);
 
+    Task<ClaimDocument?> GetDocumentByIdAsync(
+        Guid documentId,
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(
         Claim claim,
         CancellationToken cancellationToken = default);
 
     Task AddStatusHistoryAsync(
         ClaimStatusHistory history,
+        CancellationToken cancellationToken = default);
+
+    Task AddDocumentAsync(
+        ClaimDocument document,
         CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(
