@@ -154,6 +154,25 @@ The persistence layer uses:
 - query-oriented indexes
 - EF Core migrations
 
+## Database Performance
+
+The claim search path is designed with SQL Server query performance in mind.
+
+Implemented optimizations include:
+
+- `AsNoTracking()` for read-only claim searches
+- server-side status and date filtering
+- asynchronous EF Core queries
+- bounded pagination with `Skip` and `Take`
+- a unique index on `ClaimNumber`
+- a composite index on `(Status, SubmittedAt)`
+- a separate index on `SubmittedAt` for date-ordered searches without a status filter
+- indexes supporting foreign-key lookups
+
+The generated SQL migration script has been reviewed to verify that these indexes and bounded SQL Server column types are actually produced by EF Core.
+
+No latency or throughput numbers are claimed yet because the project has not been benchmarked against a live SQL Server instance. Real execution-plan and timing measurements can be added after deployment.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
