@@ -1,5 +1,7 @@
 # Claims Management API
 
+[![CI](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml)
+
 A production-style insurance claims backend built with **C#**, **ASP.NET Core**, **Entity Framework Core**, and **SQL Server**.
 
 The project demonstrates enterprise backend engineering practices including layered architecture, JWT authentication, role-based authorization, auditable claim workflows, document handling, automated testing, structured logging, and CI with GitHub Actions.
