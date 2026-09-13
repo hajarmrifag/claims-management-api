@@ -1,307 +1,130 @@
-# Claims Management API
+# Claims Management
 
 [![CI](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live_demo-Render-46E3B7)](https://claims-management-ync9.onrender.com)
 
-A production-style insurance claims backend built with **C#**, **ASP.NET Core**, **Entity Framework Core**, and **SQL Server**.
+A production-style full-stack application for submitting, reviewing, and auditing insurance claims. It pairs a responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
 
-The project demonstrates enterprise backend engineering practices including layered architecture, JWT authentication, role-based authorization, auditable claim workflows, document handling, automated testing, structured logging, and CI with GitHub Actions.
+**[Open the live application](https://claims-management-ync9.onrender.com)**
+
+> The free Render instance may need about 50 seconds to wake after inactivity. Create an account from the sign-in page; public registration safely assigns the `Adjuster` role.
+
+## Why this project exists
+
+Claims processing is more than CRUD: users need clear validation, predictable loading and error states, guarded routes, role-aware actions, auditable status transitions, and safe document handling. This project implements those concerns end to end rather than presenting disconnected screens.
+
+## Product capabilities
+
+- Register and sign in with JWT authentication
+- Create a customer, policy, and claim through a guided workflow
+- Search claims by status and date with server-side pagination
+- Review claim details and status history
+- Restrict status changes to `Manager` and `Admin` roles
+- Upload and download PDF, JPEG, and PNG evidence up to 10 MB
+- Handle loading, validation, empty, unauthorized, and API-error states
+- Use the application across desktop and mobile layouts
+
+## Engineering highlights
+
+### Frontend
+
+- React 19 and TypeScript with strict compilation
+- React Router for public, protected, detail, and not-found routes
+- TanStack Query for server state, caching, mutations, and request states
+- React Hook Form and Zod for typed form validation
+- Axios client with centralized authentication behavior
+- Accessible labels, live status messages, error alerts, and keyboard-native controls
+- ESLint, Vitest, and Testing Library checks in CI
+
+### Backend
+
+- ASP.NET Core and C# with domain, application, infrastructure, and API layers
+- Entity Framework Core with PostgreSQL in production and SQL Server support locally
+- JWT authentication, password hashing, and role-based authorization
+- Auditable claim status workflow and duplicate-number protection
+- Storage abstraction supporting local files and Azure Blob Storage
+- Central exception handling, structured request logging, and health checks
+- xUnit unit tests and HTTP integration tests
+
+### Delivery
+
+- Multi-stage Docker build compiles the React client and .NET API into one image
+- Render Blueprint provisions the web service and PostgreSQL database
+- GitHub Actions independently lint, test, and build frontend and backend
+- Secrets are supplied through environment configuration and are not committed
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Client[API Client] --> API[Claims.API]
-
-    API --> Application[Claims.Application]
-    API --> Infrastructure[Claims.Infrastructure]
-
-    Application --> Domain[Claims.Domain]
-    Infrastructure --> Application
-    Infrastructure --> Domain
-
-    Infrastructure --> DB[(SQL Server)]
-    Infrastructure --> Storage[File Storage]
+    Browser[React + TypeScript] -->|HTTPS / JSON| API[ASP.NET Core API]
+    API --> Auth[JWT authentication]
+    API --> App[Application services]
+    App --> Domain[Domain model]
+    API --> Infra[Infrastructure]
+    Infra --> DB[(PostgreSQL / SQL Server)]
+    Infra --> Files[Local / Azure Blob storage]
 ```
 
-The solution is split into four main layers:
+TanStack Query owns remote state; authentication uses a small context backed by session storage. The API owns authorization and workflow rules—the UI improves usability but is never treated as a security boundary. See [engineering decisions](docs/engineering-decisions.md) for trade-offs and alternatives.
 
-- **Claims.Domain**: entities, enums, and domain behaviour
-- **Claims.Application**: use cases, DTOs, interfaces, and application services
-- **Claims.Infrastructure**: EF Core repositories, SQL Server persistence, password hashing, and file storage
-- **Claims.API**: REST endpoints, JWT configuration, authorization, middleware, and dependency injection
+## API surface
 
-Separate unit and integration test projects verify domain behaviour and end-to-end HTTP workflows.
-
-## Features
-
-### Claims
-
-- Create insurance claims
-- Retrieve claims by ID
-- Search and filter claims
-- Pagination
-- Status workflow
-- Claim status audit history
-- Duplicate claim-number protection
-
-Supported statuses:
-
-- `Submitted`
-- `UnderReview`
-- `Approved`
-- `Rejected`
-- `Paid`
-
-### Customers and Policies
-
-- Customer creation
-- Policy creation
-- Unique customer email validation
-- Unique policy-number validation
-- Coverage information
-- Customer-policy relationships
-
-### Authentication and Authorization
-
-- User registration
-- Secure password hashing with Microsoft Identity
-- JWT bearer authentication
-- One-hour token expiration
-- Role claims embedded in JWTs
-- Protected business endpoints
-- Role-based authorization
-
-Roles:
-
-- `Adjuster`
-- `Manager`
-- `Admin`
-
-Public registration creates an `Adjuster` account by default.
-
-Claim status changes require the `Manager` or `Admin` role.
-
-### Claim Documents
-
-Authenticated users can upload supporting documents for claims.
-
-Accepted formats:
-
-- PDF
-- JPEG
-- PNG
-
-Uploads are limited to **10 MB**.
-
-Document metadata is persisted with EF Core while physical storage is accessed through an `IFileStorage` abstraction.
-
-The application supports both **local file storage** and **Azure Blob Storage** behind the same `IFileStorage` abstraction. The provider is selected through configuration, so the application layer remains unchanged.
-
-Uploaded documents can also be downloaded through authenticated API endpoints.
-
-### Validation and Error Handling
-
-Request DTOs use DataAnnotations for validation.
-
-Centralized exception handling covers:
-
-- invalid requests
-- authentication failures
-- application conflicts
-- unexpected server errors
-
-### Structured Request Logging
-
-Custom middleware records:
-
-- HTTP method
-- request path
-- response status code
-- elapsed request time
-- trace identifier
-
-## Technology Stack
-
-- .NET 10
-- C#
-- ASP.NET Core Web API
-- Entity Framework Core
-- SQL Server
-- JWT Bearer Authentication
-- Microsoft Identity PasswordHasher
-- xUnit
-- ASP.NET Core integration testing
-- EF Core InMemory provider
-- Git
-- GitHub Actions
-
-## Database Model
-
-The EF Core model includes:
-
-- `Users`
-- `Customers`
-- `Policies`
-- `Claims`
-- `ClaimDocuments`
-- `ClaimStatusHistories`
-
-The persistence layer uses:
-
-- foreign-key relationships
-- unique indexes
-- decimal precision configuration
-- enum-to-string conversion
-- cascade/restrict delete behaviour
-- query-oriented indexes
-- EF Core migrations
-
-## Database Performance
-
-The claim search path is designed with SQL Server query performance in mind.
-
-Implemented optimizations include:
-
-- `AsNoTracking()` for read-only claim searches
-- server-side status and date filtering
-- asynchronous EF Core queries
-- bounded pagination with `Skip` and `Take`
-- a unique index on `ClaimNumber`
-- a composite index on `(Status, SubmittedAt)`
-- a separate index on `SubmittedAt` for date-ordered searches without a status filter
-- indexes supporting foreign-key lookups
-
-The generated SQL migration script has been reviewed to verify that these indexes and bounded SQL Server column types are actually produced by EF Core.
-
-No latency or throughput numbers are claimed yet because the project has not been benchmarked against a live SQL Server instance. Real execution-plan and timing measurements can be added after deployment.
-
-## API Endpoints
-
-| Method | Endpoint | Description |
+| Method | Endpoint | Purpose |
 |---|---|---|
-| POST | `/api/auth/register` | Register an Adjuster |
-| POST | `/api/auth/login` | Authenticate and receive a JWT |
-| POST | `/api/customers` | Create a customer |
-| POST | `/api/policies` | Create a policy |
-| POST | `/api/claims` | Create a claim |
-| GET | `/api/claims/{id}` | Retrieve a claim |
-| GET | `/api/claims` | Search and paginate claims |
-| PATCH | `/api/claims/{id}/status` | Update claim status |
-| POST | `/api/claims/{id}/documents` | Upload a claim document |
-| GET | `/api/claims/{claimId}/documents/{documentId}` | Download a claim document |
+| `POST` | `/api/auth/register` | Register an Adjuster |
+| `POST` | `/api/auth/login` | Authenticate and receive a JWT |
+| `POST` | `/api/customers` | Create a customer |
+| `POST` | `/api/policies` | Create a policy |
+| `POST` | `/api/claims` | Create a claim |
+| `GET` | `/api/claims` | Filter and paginate claims |
+| `GET` | `/api/claims/{id}` | Retrieve a claim and its history |
+| `PATCH` | `/api/claims/{id}/status` | Make an authorized status transition |
+| `POST` | `/api/claims/{id}/documents` | Upload claim evidence |
+| `GET` | `/api/claims/{claimId}/documents/{documentId}` | Download evidence |
 
-Business endpoints require JWT authentication.
+Business endpoints require a bearer token. Status changes additionally require the `Manager` or `Admin` role.
 
-## Testing
+## Run locally
 
-The repository contains both unit and integration tests.
-
-Unit tests cover domain behaviour such as claim creation and status changes.
-
-Integration tests cover complete HTTP workflows including:
-
-- user registration and login
-- JWT generation
-- customer creation
-- customer → policy → claim workflow
-- authorization rules
-- document upload and download
-
-Run all tests with:
-
-```bash
-dotnet test
-```
-
-## Continuous Integration
-
-GitHub Actions runs automatically on pushes and pull requests to `main`.
-
-The CI pipeline:
-
-1. checks out the repository
-2. installs .NET 10
-3. restores dependencies
-4. builds in Release mode
-5. runs the complete automated test suite
-
-## Running Locally
-
-Clone the repository:
+Requirements: Docker Desktop, .NET 10 SDK, and Node.js 24.
 
 ```bash
 git clone https://github.com/hajarmrifag/claims-management-api.git
 cd claims-management-api
+./run.sh
 ```
 
-Configure the SQL Server connection using .NET User Secrets:
+Then open `http://localhost:5173`. The launcher starts SQL Server and both application processes.
+
+Run the quality checks directly:
 
 ```bash
-dotnet user-secrets set \
-  "ConnectionStrings:ClaimsDatabase" \
-  "<YOUR_SQL_SERVER_CONNECTION_STRING>" \
-  --project src/Claims.API
+dotnet test
+cd frontend
+npm ci
+npm run lint
+npm test
+npm run build
 ```
 
-Configure the JWT signing key:
+## Security and operational boundaries
 
-```bash
-dotnet user-secrets set \
-  "Jwt:Key" \
-  "<YOUR_SECURE_SIGNING_KEY>" \
-  --project src/Claims.API
-```
+- Public registration cannot choose a privileged role.
+- Passwords are hashed; credentials and JWT signing keys stay outside source control.
+- Authorization is enforced by the API, including status-changing operations.
+- Search uses bounded pagination and no-tracking EF queries.
+- The free demo stores uploaded file bytes on ephemeral container storage, so files may be lost after a restart. Production would use the existing Azure Blob provider or another durable object store.
+- Render hosts the public portfolio deployment. The container could run on AWS, but this repository does not claim an AWS deployment that has not been implemented.
 
-Apply EF Core migrations:
+## Next improvements
 
-```bash
-dotnet ef database update \
-  --project src/Claims.Infrastructure \
-  --startup-project src/Claims.API
-```
+- Add Playwright browser tests for the complete claim workflow
+- Add durable object storage to the public deployment
+- Add OpenTelemetry traces and production dashboards
+- Express an AWS deployment as infrastructure as code
+- Expand frontend tests around authentication, filters, and mutations
 
-Run the API:
+## What this demonstrates
 
-```bash
-dotnet run --project src/Claims.API
-```
-
-## Security Design
-
-Database credentials and JWT signing secrets are not committed to source control.
-
-Local secrets are stored with **.NET User Secrets**.
-
-Public registration does not allow clients to assign themselves privileged roles.
-
-Passwords are stored as secure hashes rather than plaintext.
-
-Protected endpoints use JWT bearer authentication and role-based authorization.
-
-## Engineering Goals
-
-This project is intentionally more than a CRUD demo.
-
-It demonstrates:
-
-- separation of concerns
-- dependency inversion
-- clean project boundaries
-- repository abstraction
-- secure authentication
-- role-based access control
-- auditable domain workflows
-- file-storage abstraction
-- automated testing
-- centralized error handling
-- request observability
-- CI automation
-- cloud-ready infrastructure boundaries
-
-## Planned Improvements
-
-- Azure SQL deployment
-- API deployment to Azure
-- database performance benchmarking
-- richer OpenAPI documentation
-- expanded authorization policies
+This repository provides evidence of typed React development, API integration, form validation, server-state management, responsive product design, backend architecture, security-aware implementation, automated testing, containerization, CI, and cloud deployment. Its documentation makes the main technical decisions available for review and discussion.

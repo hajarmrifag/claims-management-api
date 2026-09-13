@@ -11,7 +11,7 @@ export default function HomePage() {
 
         <p>
           A full-stack claims management application built with React,
-          TypeScript, ASP.NET Core, and SQL Server.
+          TypeScript, ASP.NET Core, and PostgreSQL.
         </p>
 
         <Link className="primary-link" to="/login">
