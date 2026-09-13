@@ -65,7 +65,7 @@ builder.Services.AddDbContext<ClaimsDbContext>(options =>
         var connectionString = new Npgsql.NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
-            Port = uri.Port,
+            Port = uri.IsDefaultPort ? 5432 : uri.Port,
             Database = uri.AbsolutePath.TrimStart('/'),
             Username = Uri.UnescapeDataString(credentials[0]),
             Password = credentials.Length > 1
