@@ -35,6 +35,7 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 - Axios client with centralized authentication behavior
 - Accessible labels, live status messages, error alerts, and keyboard-native controls
 - ESLint, Vitest, and Testing Library checks in CI
+- Playwright browser testing for the authentication-to-workspace journey
 
 ### Backend
 
@@ -105,6 +106,7 @@ cd frontend
 npm ci
 npm run lint
 npm test
+npm run test:e2e
 npm run build
 ```
 
@@ -119,7 +121,7 @@ npm run build
 
 ## Next improvements
 
-- Add Playwright browser tests for the complete claim workflow
+- Expand Playwright coverage to claim creation, filtering, and documents
 - Add durable object storage to the public deployment
 - Add OpenTelemetry traces and production dashboards
 - Express an AWS deployment as infrastructure as code
