@@ -1,4 +1,5 @@
 import ApiStatus from '../components/ApiStatus'
+import { Link } from 'react-router-dom'
 
 export default function HomePage() {
   return (
@@ -12,6 +13,10 @@ export default function HomePage() {
           A full-stack claims management application built with React,
           TypeScript, ASP.NET Core, and SQL Server.
         </p>
+
+        <Link className="primary-link" to="/login">
+          Open claims workspace
+        </Link>
 
         <ApiStatus />
       </section>

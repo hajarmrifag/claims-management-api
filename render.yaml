@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: claims-management
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: claims-management-db
+          property: connectionString
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: ClaimsManagementApi
+      - key: Jwt__Audience
+        value: ClaimsManagementClient
+      - key: Storage__Provider
+        value: Local
+
+databases:
+  - name: claims-management-db
+    plan: free
+    databaseName: claims_management
+    user: claims_app

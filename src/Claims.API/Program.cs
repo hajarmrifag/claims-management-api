@@ -54,9 +54,34 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
+var databaseUrl = builder.Configuration["DATABASE_URL"];
+
 builder.Services.AddDbContext<ClaimsDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("ClaimsDatabase")));
+{
+    if (!string.IsNullOrWhiteSpace(databaseUrl))
+    {
+        var uri = new Uri(databaseUrl);
+        var credentials = uri.UserInfo.Split(':', 2);
+        var connectionString = new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port,
+            Database = uri.AbsolutePath.TrimStart('/'),
+            Username = Uri.UnescapeDataString(credentials[0]),
+            Password = credentials.Length > 1
+                ? Uri.UnescapeDataString(credentials[1])
+                : string.Empty,
+            SslMode = Npgsql.SslMode.Prefer
+        }.ConnectionString;
+
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("ClaimsDatabase"));
+    }
+});
 
 builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 builder.Services.AddScoped<ClaimService>();
@@ -148,11 +173,21 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+app.MapFallbackToFile("index.html");
+
+if (!string.IsNullOrWhiteSpace(databaseUrl))
+{
+    using var scope = app.Services.CreateScope();
+    var database = scope.ServiceProvider.GetRequiredService<ClaimsDbContext>();
+    await database.Database.EnsureCreatedAsync();
+}
 
 app.Run();
 

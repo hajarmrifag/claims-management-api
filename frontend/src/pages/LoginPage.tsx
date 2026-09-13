@@ -2,13 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import {
   Navigate,
   useLocation,
   useNavigate,
 } from 'react-router-dom'
 import { z } from 'zod'
-import { login } from '../api/auth'
+import { login, registerAccount } from '../api/auth'
 import { useAuth } from '../auth/useAuth'
 
 const loginSchema = z.object({
@@ -30,6 +31,7 @@ interface ApiError {
 }
 
 export default function LoginPage() {
+  const [isRegistering, setIsRegistering] = useState(false)
   const { signIn, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -43,7 +45,8 @@ export default function LoginPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: login,
+    mutationFn: (values: LoginFormValues) =>
+      isRegistering ? registerAccount(values) : login(values),
 
     onSuccess: (session) => {
       signIn(session)
@@ -75,10 +78,12 @@ export default function LoginPage() {
       <section className="card auth-card">
         <p className="eyebrow">Claims Management</p>
 
-        <h1>Sign in</h1>
+        <h1>{isRegistering ? 'Create account' : 'Sign in'}</h1>
 
         <p>
-          Access the claims workspace using your account.
+          {isRegistering
+            ? 'Create an adjuster account to access the workspace.'
+            : 'Access the claims workspace using your account.'}
         </p>
 
         <form
@@ -136,10 +141,17 @@ export default function LoginPage() {
             disabled={mutation.isPending}
           >
             {mutation.isPending
-              ? 'Signing in...'
-              : 'Sign in'}
+              ? 'Please wait...'
+              : isRegistering ? 'Create account' : 'Sign in'}
           </button>
         </form>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => { mutation.reset(); setIsRegistering((value) => !value) }}
+        >
+          {isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register'}
+        </button>
       </section>
     </main>
   )
