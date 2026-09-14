@@ -1,5 +1,6 @@
 using Claims.Application.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Claims.API.Controllers;
@@ -7,6 +8,7 @@ namespace Claims.API.Controllers;
 [ApiController]
 [Route("api/auth")]
 [AllowAnonymous]
+[EnableRateLimiting("authentication")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;

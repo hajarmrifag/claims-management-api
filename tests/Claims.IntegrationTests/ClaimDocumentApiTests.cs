@@ -78,7 +78,7 @@ public class ClaimDocumentApiTests :
 
         Assert.NotNull(claim);
 
-        const string expectedContent = "fake pdf content";
+        const string expectedContent = "%PDF-1.7\nfake test body";
 
         using var content = new MultipartFormDataContent();
 
@@ -118,5 +118,27 @@ public class ClaimDocumentApiTests :
             await downloadResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(expectedContent, downloadedContent);
+    }
+
+    [Fact]
+    public async Task UploadDocument_WithSpoofedContentType_ShouldBeRejected()
+    {
+        await TestAuthHelper.AuthenticateAsync(_client);
+
+        using var content = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(
+            Encoding.UTF8.GetBytes("this is not a PDF"));
+
+        fileContent.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(
+                "application/pdf");
+
+        content.Add(fileContent, "file", "spoofed.pdf");
+
+        var response = await _client.PostAsync(
+            $"/api/claims/{Guid.NewGuid()}/documents",
+            content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

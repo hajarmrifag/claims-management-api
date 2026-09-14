@@ -109,12 +109,27 @@ public class ClaimsController : ControllerBase
                 "Only PDF, JPEG and PNG files are allowed.");
         }
 
+        await using (var validationStream = file.OpenReadStream())
+        {
+            var signatureMatches =
+                await DocumentContentValidator.MatchesDeclaredTypeAsync(
+                    validationStream,
+                    file.ContentType,
+                    cancellationToken);
+
+            if (!signatureMatches)
+            {
+                return BadRequest(
+                    "The file content does not match its declared type.");
+            }
+        }
+
         await using var stream = file.OpenReadStream();
 
         var response = await documentService.UploadAsync(
             id,
             stream,
-            file.FileName,
+            Path.GetFileName(file.FileName),
             file.ContentType,
             cancellationToken);
 

@@ -1,6 +1,8 @@
 # Claims Management
 
 [![CI](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml)
+[![Security](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml)
+[![DAST](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml)
 [![Live demo](https://img.shields.io/badge/live_demo-Render-46E3B7)](https://claims-management-ync9.onrender.com)
 
 A production-style full-stack application for submitting, reviewing, and auditing insurance claims. It pairs a responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
@@ -42,7 +44,9 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 - ASP.NET Core and C# with domain, application, infrastructure, and API layers
 - Entity Framework Core with PostgreSQL in production and SQL Server support locally
 - JWT authentication, password hashing, and role-based authorization
+- Authentication endpoint rate limiting and browser defence-in-depth headers
 - Auditable claim status workflow and duplicate-number protection
+- Document size, type, filename, and magic-byte validation
 - Storage abstraction supporting local files and Azure Blob Storage
 - Central exception handling, structured request logging, and health checks
 - xUnit unit tests and HTTP integration tests
@@ -52,7 +56,25 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 - Multi-stage Docker build compiles the React client and .NET API into one image
 - Render Blueprint provisions the web service and PostgreSQL database
 - GitHub Actions independently lint, test, and build frontend and backend
+- CodeQL, Trivy, Dependabot, and OWASP ZAP provide automated security analysis
 - Secrets are supplied through environment configuration and are not committed
+
+## Application security case study
+
+This repository includes a source-assisted security assessment rather than only
+claiming that the application is "secure." The artifacts show how threats were
+identified, classified, remediated, regression-tested, and carried into CI:
+
+- [Threat model](docs/security/threat-model.md) - assets, trust boundaries,
+  assumptions, and STRIDE abuse cases
+- [Assessment report](docs/security/assessment-report.md) - severity, CWE and
+  OWASP mappings, remediation, residual risk, and verification status
+- [Security policy](SECURITY.md) - safe reporting expectations and project scope
+
+The security workflows run CodeQL SAST, Trivy dependency/secret/configuration and
+container scans, and an OWASP ZAP DAST baseline. Generated scan results remain in
+GitHub's security view or workflow artifacts so the documentation does not invent
+tool output that has not run.
 
 ## Architecture
 
@@ -115,6 +137,9 @@ npm run build
 - Public registration cannot choose a privileged role.
 - Passwords are hashed; credentials and JWT signing keys stay outside source control.
 - Authorization is enforced by the API, including status-changing operations.
+- Login and registration requests are rate limited per source address.
+- Uploaded documents must match the declared PDF, JPEG, or PNG file signature.
+- Production responses use HSTS and restrictive browser security headers.
 - Search uses bounded pagination and no-tracking EF queries.
 - The free demo stores uploaded file bytes on ephemeral container storage, so files may be lost after a restart. Production would use the existing Azure Blob provider or another durable object store.
 - Render hosts the public portfolio deployment. The container could run on AWS, but this repository does not claim an AWS deployment that has not been implemented.
