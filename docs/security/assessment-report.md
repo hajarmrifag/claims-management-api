@@ -27,6 +27,7 @@ documented single-organization, synthetic-data scope.
 | APPSEC-005 | Low | Browser defence-in-depth headers were incomplete | CWE-693 / A05 Security Misconfiguration | Remediated |
 | APPSEC-006 | Medium | CI did not perform static, dependency, secret, container, or dynamic scanning | A06 Vulnerable and Outdated Components | Remediated in configuration; first CI results pending |
 | APPSEC-007 | Medium | Document uploads are not malware scanned | CWE-434 / A04 Insecure Design | Planned before real-data use |
+| APPSEC-008 | High | Production container executed as the root user | CWE-250 / A05 Security Misconfiguration | Remediated after first Trivy run |
 
 ## Detailed findings
 
@@ -125,6 +126,19 @@ content.
 production use, quarantine uploads, scan them asynchronously, use private storage,
 serve safe derivatives where appropriate, and release only clean objects.
 
+### APPSEC-008: Production container executed as root
+
+**Observation.** The first Trivy repository scan failed rule DS-0002 because the
+runtime Docker stage had no `USER` instruction and therefore executed as root.
+
+**Impact.** Root execution unnecessarily increases the impact of an application
+or container-runtime compromise.
+
+**Remediation.** The image now prepares its writable upload directory during the
+build, assigns it to the built-in unprivileged .NET account, and switches to
+`USER $APP_UID` before starting the API. This finding was fixed rather than
+ignored, preserving the failed scan as evidence of the remediation workflow.
+
 ## Verification checklist
 
 - [x] Unit and integration tests pass after remediation
@@ -133,6 +147,7 @@ serve safe derivatives where appropriate, and release only clean objects.
 - [x] Security headers have a regression test
 - [x] NuGet advisory check reports no vulnerable direct or transitive packages
 - [x] npm production dependency audit reports zero vulnerabilities
+- [x] First Trivy run identified root container execution and the Dockerfile was remediated
 - [ ] Review the first CodeQL result set
 - [ ] Review and classify Trivy dependency, secret, configuration, and image results
 - [ ] Review the first ZAP HTML and JSON artifacts

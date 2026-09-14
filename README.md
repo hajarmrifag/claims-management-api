@@ -54,6 +54,7 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 ### Delivery
 
 - Multi-stage Docker build compiles the React client and .NET API into one image
+- The production container runs as the built-in unprivileged .NET user
 - Render Blueprint provisions the web service and PostgreSQL database
 - GitHub Actions independently lint, test, and build frontend and backend
 - CodeQL, Trivy, Dependabot, and OWASP ZAP provide automated security analysis

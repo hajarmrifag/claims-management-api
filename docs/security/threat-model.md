@@ -81,7 +81,7 @@ environment-provided secrets.
 | TM-06 | Denial of service | Oversized uploads or repeated authentication attempts consume resources | 10 MB request limit and fixed-window auth rate limit | Add global/API quotas and platform-level traffic controls |
 | TM-07 | Elevation of privilege | Public registrant selects Manager or Admin | Registration assigns Adjuster server-side; privileged status endpoint checks roles | Add an operator-controlled role-management workflow with strong audit logging if needed |
 | TM-08 | Tampering | Executable content is disguised as a permitted document | Allowlist, size limit, filename normalization, and magic-byte validation | Add malware scanning and content reconstruction for real documents |
-| TM-09 | Supply chain | Vulnerable dependency or compromised artifact reaches deployment | Lockfiles, CI builds, Dependabot, CodeQL, and Trivy | Pin third-party actions to immutable commit SHAs and review alerts before release |
+| TM-09 | Supply chain | Vulnerable dependency or compromised artifact reaches deployment | Lockfiles, CI builds, Dependabot, CodeQL, Trivy, and an unprivileged runtime container | Pin third-party actions to immutable commit SHAs and review alerts before release |
 | TM-10 | Information disclosure | Secrets are committed or logged | Environment configuration, generic 500 errors, and Trivy secret scanning | Add platform secret scanning and rotate any exposed credential immediately |
 
 ## Security assumptions
