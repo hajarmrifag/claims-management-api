@@ -28,7 +28,7 @@ documented single-organization, synthetic-data scope.
 | APPSEC-006 | Medium | CI did not perform static, dependency, secret, container, or dynamic scanning | A06 Vulnerable and Outdated Components | Remediated; first workflows reviewed |
 | APPSEC-007 | Medium | Document uploads are not malware scanned | CWE-434 / A04 Insecure Design | Planned before real-data use |
 | APPSEC-008 | High | Production container executed as the root user | CWE-250 / A05 Security Misconfiguration | Remediated after first Trivy run |
-| APPSEC-009 | Medium | Request logs included attacker-controlled method and path values | CWE-117 / A09 Security Logging and Monitoring Failures | Remediated; CodeQL rescan pending |
+| APPSEC-009 | Medium | Request logs included attacker-controlled method and path values | CWE-117 / A09 Security Logging and Monitoring Failures | Remediated; CodeQL alerts closed |
 
 ## Detailed findings
 
@@ -160,7 +160,7 @@ request values could corrupt log records or confuse investigations.
 **Remediation.** Request logs now use a fixed allowlist of method labels and the
 matched endpoint's server-defined display name. Unknown methods and unmatched
 routes have fixed fallback labels. The raw path is no longer logged. The next
-CodeQL run must confirm that the three alerts are resolved.
+CodeQL run on 17 September confirmed that the three alerts were closed.
 
 ## Verification checklist
 
@@ -174,7 +174,7 @@ CodeQL run must confirm that the three alerts are resolved.
 - [x] Review first CodeQL alerts and remediate the three log-forging paths
 - [x] Review Trivy repository and container job results after APPSEC-008
 - [x] Review the first ZAP baseline summary and classify its coverage limits
-- [ ] Confirm CodeQL closes the APPSEC-009 alerts on the next run
+- [x] Confirm CodeQL closes the APPSEC-009 alerts on the next run
 - [ ] Convert agreed high-confidence ZAP findings into a blocking policy
 - [ ] Reassess after any authentication or authorization redesign
 
