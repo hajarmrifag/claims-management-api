@@ -1,6 +1,6 @@
 # Application security assessment
 
-Assessment date: 14 September 2026  
+Assessment date: 17 September 2026
 Scope: source-assisted review of the ASP.NET Core API, React client, document
 handling, authentication flow, and GitHub Actions configuration
 
@@ -8,10 +8,10 @@ handling, authentication flow, and GitHub Actions configuration
 
 This initial assessment combined manual data-flow review, abuse-case analysis,
 and inspection of security-sensitive code. Findings are mapped to CWE and the
-OWASP Top 10 where a useful mapping exists. CodeQL, Trivy, and OWASP ZAP workflows
-have been added; their generated reports are CI artifacts and GitHub code-scanning
-results, not fabricated in this document. The workflow is intentionally honest
-about which evidence has and has not run.
+OWASP Top 10 where a useful mapping exists. CodeQL, Trivy, and OWASP ZAP results
+are retained in GitHub workflow artifacts and code-scanning alerts. The first
+results have been reviewed; this report distinguishes verified results from
+unresolved risks.
 
 Severity considers likely impact and exploitability in this demonstration's
 documented single-organization, synthetic-data scope.
@@ -25,9 +25,10 @@ documented single-organization, synthetic-data scope.
 | APPSEC-003 | Medium | JWT is readable by browser JavaScript | CWE-922 / A07 Identification and Authentication Failures | Accepted for demo; production change required |
 | APPSEC-004 | Context-dependent | API uses shared-workspace authorization rather than resource ownership | CWE-639 / A01 Broken Access Control | Accepted within current scope |
 | APPSEC-005 | Low | Browser defence-in-depth headers were incomplete | CWE-693 / A05 Security Misconfiguration | Remediated |
-| APPSEC-006 | Medium | CI did not perform static, dependency, secret, container, or dynamic scanning | A06 Vulnerable and Outdated Components | Remediated in configuration; first CI results pending |
+| APPSEC-006 | Medium | CI did not perform static, dependency, secret, container, or dynamic scanning | A06 Vulnerable and Outdated Components | Remediated; first workflows reviewed |
 | APPSEC-007 | Medium | Document uploads are not malware scanned | CWE-434 / A04 Insecure Design | Planned before real-data use |
 | APPSEC-008 | High | Production container executed as the root user | CWE-250 / A05 Security Misconfiguration | Remediated after first Trivy run |
+| APPSEC-009 | Medium | Request logs included attacker-controlled method and path values | CWE-117 / A09 Security Logging and Monitoring Failures | Remediated; CodeQL rescan pending |
 
 ## Detailed findings
 
@@ -112,10 +113,21 @@ security-specific analysis.
 - OWASP ZAP passive baseline scanning against an ephemeral deployment
 - Dependabot updates for NuGet, npm, and GitHub Actions
 
-**Verification.** Review the first GitHub workflow run and triage every result.
-ZAP is initially non-blocking so its baseline can be reviewed without disguising
-alerts as build failures; the intended next step is to make agreed high-confidence
-rules blocking.
+**Verification.** The 14 September push passed CodeQL C# and JavaScript/TypeScript
+jobs, Trivy repository scanning, and Trivy image scanning after APPSEC-008 was
+fixed. CodeQL still created the three APPSEC-009 alerts despite a successful
+workflow, so green CI is not interpreted as zero findings.
+
+The first ZAP baseline scan completed on 14 September against an ephemeral local
+deployment. It crawled seven URLs and reported zero failures, six warning types,
+and 64 passive rules marked as passed. The warnings were: suspicious comments,
+cacheable content, CSP `style-src 'unsafe-inline'`, modern web application,
+missing Cross-Origin-Embedder-Policy, and missing `Sec-Fetch-Dest`. Several are
+informational or need context; the inline-style CSP allowance and caching
+behavior merit a separate review before changing the policy. This scan did not
+authenticate or exercise privileged routes. ZAP remains non-blocking while
+these warnings are triaged; the next step is to promote selected high-confidence
+rules into a blocking policy.
 
 ### APPSEC-007: No malware inspection of valid document formats
 
@@ -139,6 +151,17 @@ build, assigns it to the built-in unprivileged .NET account, and switches to
 `USER $APP_UID` before starting the API. This finding was fixed rather than
 ignored, preserving the failed scan as evidence of the remediation workflow.
 
+### APPSEC-009: Attacker-controlled values in request logs
+
+**Observation.** CodeQL reported three `cs/log-forging` alerts because the
+request logger copied the raw HTTP method and path into structured logs. Crafted
+request values could corrupt log records or confuse investigations.
+
+**Remediation.** Request logs now use a fixed allowlist of method labels and the
+matched endpoint's server-defined display name. Unknown methods and unmatched
+routes have fixed fallback labels. The raw path is no longer logged. The next
+CodeQL run must confirm that the three alerts are resolved.
+
 ## Verification checklist
 
 - [x] Unit and integration tests pass after remediation
@@ -148,9 +171,10 @@ ignored, preserving the failed scan as evidence of the remediation workflow.
 - [x] NuGet advisory check reports no vulnerable direct or transitive packages
 - [x] npm production dependency audit reports zero vulnerabilities
 - [x] First Trivy run identified root container execution and the Dockerfile was remediated
-- [ ] Review the first CodeQL result set
-- [ ] Review and classify Trivy dependency, secret, configuration, and image results
-- [ ] Review the first ZAP HTML and JSON artifacts
+- [x] Review first CodeQL alerts and remediate the three log-forging paths
+- [x] Review Trivy repository and container job results after APPSEC-008
+- [x] Review the first ZAP baseline summary and classify its coverage limits
+- [ ] Confirm CodeQL closes the APPSEC-009 alerts on the next run
 - [ ] Convert agreed high-confidence ZAP findings into a blocking policy
 - [ ] Reassess after any authentication or authorization redesign
 

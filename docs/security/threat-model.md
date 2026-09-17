@@ -1,6 +1,6 @@
 # Threat model
 
-Last reviewed: 14 September 2026
+Last reviewed: 17 September 2026
 
 ## Scope and security objective
 
@@ -75,7 +75,7 @@ environment-provided secrets.
 |---|---|---|---|---|
 | TM-01 | Spoofing | Credential guessing or token forgery | Password hashing, signed JWTs, issuer/audience/lifetime validation, authentication rate limit | Add account lockout and monitoring if accounts become persistent |
 | TM-02 | Tampering | Adjuster changes a claim to an unauthorized state | API-side role authorization and domain transition rules | Add explicit negative tests for every privileged transition |
-| TM-03 | Repudiation | A privileged user denies changing claim status | Append-only status history and structured request logging | Record authenticated subject and security-relevant events in a durable audit sink |
+| TM-03 | Repudiation | A privileged user denies changing claim status or tampers with request logs | Append-only status history and request logging that omits raw attacker-controlled paths | Record authenticated subject and security-relevant events in a durable audit sink |
 | TM-04 | Information disclosure | Token theft through browser script execution | Short-lived token and restrictive CSP | Replace session storage with secure HttpOnly cookies plus CSRF controls before production use |
 | TM-05 | Information disclosure | One staff user reads a claim outside their permitted scope | Shared-workspace scope is documented; document IDs are checked against claim IDs | Add tenant and resource ownership policies before introducing customers or multiple organizations |
 | TM-06 | Denial of service | Oversized uploads or repeated authentication attempts consume resources | 10 MB request limit and fixed-window auth rate limit | Add global/API quotas and platform-level traffic controls |

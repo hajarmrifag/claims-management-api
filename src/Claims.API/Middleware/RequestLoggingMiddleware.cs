@@ -19,28 +19,35 @@ public class RequestLoggingMiddleware
     {
         var stopwatch = Stopwatch.StartNew();
 
-        using (_logger.BeginScope(new Dictionary<string, object>
+        try
         {
-            ["TraceId"] = context.TraceIdentifier,
-            ["Method"] = context.Request.Method,
-            ["Path"] = context.Request.Path.ToString()
-        }))
+            await _next(context);
+        }
+        finally
         {
-            try
-            {
-                await _next(context);
-            }
-            finally
-            {
-                stopwatch.Stop();
+            stopwatch.Stop();
 
-                _logger.LogInformation(
-                    "HTTP {Method} {Path} responded {StatusCode} in {ElapsedMilliseconds} ms",
-                    context.Request.Method,
-                    context.Request.Path,
-                    context.Response.StatusCode,
-                    stopwatch.ElapsedMilliseconds);
-            }
+            // The raw method and path can contain attacker-controlled characters.
+            // Keep request logs useful without copying either value into a log entry.
+            var method = context.Request.Method switch
+            {
+                "GET" => "GET",
+                "POST" => "POST",
+                "PUT" => "PUT",
+                "PATCH" => "PATCH",
+                "DELETE" => "DELETE",
+                "HEAD" => "HEAD",
+                "OPTIONS" => "OPTIONS",
+                _ => "OTHER"
+            };
+            var endpoint = context.GetEndpoint()?.DisplayName ?? "Unmatched endpoint";
+
+            _logger.LogInformation(
+                "HTTP {Method} {Endpoint} responded {StatusCode} in {ElapsedMilliseconds} ms",
+                method,
+                endpoint,
+                context.Response.StatusCode,
+                stopwatch.ElapsedMilliseconds);
         }
     }
 }

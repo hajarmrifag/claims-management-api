@@ -213,6 +213,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("Frontend");
 app.UseDefaultFiles();
 app.UseStaticFiles();
