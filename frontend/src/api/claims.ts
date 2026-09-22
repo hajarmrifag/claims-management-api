@@ -12,6 +12,7 @@ export async function searchClaims(
     '/api/claims',
     {
       params: {
+        Search: params.search,
         Status: params.status,
         FromDate: params.fromDate,
         ToDate: params.toDate,

@@ -102,5 +102,18 @@ public class ClaimsApiTests :
         Assert.NotNull(retrievedClaim);
         Assert.Equal(claim.Id, retrievedClaim.Id);
         Assert.Equal(claim.ClaimNumber, retrievedClaim.ClaimNumber);
+
+        var searchResponse = await _client.GetAsync(
+            $"/api/claims?search={Uri.EscapeDataString(claim.ClaimNumber)}");
+
+        Assert.Equal(HttpStatusCode.OK, searchResponse.StatusCode);
+
+        var searchResult = await searchResponse.Content
+            .ReadFromJsonAsync<PagedResult<ClaimResponse>>();
+
+        Assert.NotNull(searchResult);
+        Assert.Contains(
+            searchResult.Items,
+            result => result.Id == claim.Id);
     }
 }

@@ -20,6 +20,7 @@ export interface Claim {
 }
 
 export interface ClaimSearchParams {
+  search?: string
   status?: ClaimStatus
   fromDate?: string
   toDate?: string

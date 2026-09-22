@@ -29,7 +29,7 @@ test('an adjuster can register and enter the claims workspace', async ({
   })
 
   await page.goto('/login')
-  await page.getByRole('button', { name: 'Need an account? Register' }).click()
+  await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByLabel('Email').fill('candidate@example.com')
   await page.getByLabel('Password').fill('A-secure-test-password!')
   await page.getByRole('button', { name: 'Create account' }).click()

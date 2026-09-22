@@ -1,11 +1,11 @@
-# Claims Management
+# Aegis Claims
 
 [![CI](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml)
 [![Security](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml)
 [![DAST](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml)
 [![Live demo](https://img.shields.io/badge/live_demo-Render-46E3B7)](https://claims-management-ync9.onrender.com)
 
-A production-style full-stack application for submitting, reviewing, and auditing insurance claims. It pairs a responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
+A production-style full-stack application for submitting, reviewing, and auditing insurance claims. Aegis pairs a polished, responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
 
 **[Open the live application](https://claims-management-ync9.onrender.com)**
 
@@ -19,7 +19,7 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 
 - Register and sign in with JWT authentication
 - Create a customer, policy, and claim through a guided workflow
-- Search claims by status and date with server-side pagination
+- Search claims by number or description, then filter by status and date with server-side pagination
 - Review claim details and status history
 - Restrict status changes to `Manager` and `Admin` roles
 - Upload and download PDF, JPEG, and PNG evidence up to 10 MB

@@ -11,6 +11,8 @@ import {
 import { z } from 'zod'
 import { login, registerAccount } from '../api/auth'
 import { useAuth } from '../auth/useAuth'
+import Brand from '../components/Brand'
+import Icon from '../components/Icon'
 
 const loginSchema = z.object({
   email: z
@@ -74,35 +76,30 @@ export default function LoginPage() {
         : null
 
   return (
-    <main className="page">
-      <section className="card auth-card">
-        <p className="eyebrow">Claims Management</p>
+    <main className="auth-page">
+      <section className="auth-story">
+        <Brand />
+        <div className="auth-story-copy">
+          <span className="auth-quote-mark">“</span>
+          <blockquote>Every claim tells a story. Give your team the clarity to resolve it well.</blockquote>
+          <p>A secure, focused workspace for modern claims operations.</p>
+        </div>
+        <div className="auth-assurance"><Icon name="shield" /><span><strong>Enterprise-grade protection</strong><small>Authentication, authorization, and auditability built in.</small></span></div>
+      </section>
 
-        <h1>{isRegistering ? 'Create account' : 'Sign in'}</h1>
+      <section className="auth-panel">
+        <div className="auth-mobile-brand"><Brand /></div>
+        <div className="auth-card">
+          <div className="auth-heading">
+            <p className="eyebrow">{isRegistering ? 'Join the workspace' : 'Welcome back'}</p>
+            <h1>{isRegistering ? 'Create your account' : 'Sign in to Aegis'}</h1>
+            <p>{isRegistering ? 'Create an adjuster account and start managing claims.' : 'Enter your details to access your claims workspace.'}</p>
+          </div>
 
-        <p>
-          {isRegistering
-            ? 'Create an adjuster account to access the workspace.'
-            : 'Access the claims workspace using your account.'}
-        </p>
-
-        <form
-          className="auth-form"
-          onSubmit={handleSubmit((values) =>
-            mutation.mutate(values),
-          )}
-          noValidate
-        >
+          <form className="auth-form" onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate>
           <div className="field">
             <label htmlFor="email">Email</label>
-
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              aria-invalid={Boolean(errors.email)}
-              {...register('email')}
-            />
+            <div className="input-with-icon"><Icon name="user" size={18} /><input id="email" type="email" autoComplete="email" placeholder="you@company.com" aria-invalid={Boolean(errors.email)} {...register('email')} /></div>
 
             {errors.email && (
               <p className="field-error">
@@ -113,14 +110,7 @@ export default function LoginPage() {
 
           <div className="field">
             <label htmlFor="password">Password</label>
-
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={Boolean(errors.password)}
-              {...register('password')}
-            />
+            <div className="input-with-icon"><Icon name="lock" size={18} /><input id="password" type="password" autoComplete={isRegistering ? 'new-password' : 'current-password'} placeholder="Enter your password" aria-invalid={Boolean(errors.password)} {...register('password')} /></div>
 
             {errors.password && (
               <p className="field-error">
@@ -136,22 +126,22 @@ export default function LoginPage() {
           )}
 
           <button
-            className="primary-button"
+            className="primary-button auth-submit"
             type="submit"
             disabled={mutation.isPending}
           >
-            {mutation.isPending
-              ? 'Please wait...'
-              : isRegistering ? 'Create account' : 'Sign in'}
+            <span>{mutation.isPending ? 'Please wait…' : isRegistering ? 'Create account' : 'Sign in'}</span>
+            {!mutation.isPending && <Icon name="arrow-right" size={18} />}
           </button>
-        </form>
-        <button
-          className="text-button"
-          type="button"
-          onClick={() => { mutation.reset(); setIsRegistering((value) => !value) }}
-        >
-          {isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register'}
-        </button>
+          </form>
+          <div className="auth-switch">
+            <span>{isRegistering ? 'Already have an account?' : 'New to Aegis?'}</span>
+            <button className="text-button" type="button" onClick={() => { mutation.reset(); setIsRegistering((value) => !value) }}>
+              {isRegistering ? 'Sign in' : 'Create an account'}
+            </button>
+          </div>
+          <p className="auth-legal"><Icon name="lock" size={13} /> Your session is encrypted and securely managed.</p>
+        </div>
       </section>
     </main>
   )

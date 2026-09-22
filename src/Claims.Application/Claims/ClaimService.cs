@@ -62,7 +62,12 @@ public class ClaimService
         var normalizedQuery = query with
         {
             Page = page,
-            PageSize = pageSize
+            PageSize = pageSize,
+            Search = string.IsNullOrWhiteSpace(query.Search)
+                ? null
+                : query.Search.Trim()[..Math.Min(
+                    query.Search.Trim().Length,
+                    100)]
         };
 
         var (items, totalCount) = await _repository.SearchAsync(

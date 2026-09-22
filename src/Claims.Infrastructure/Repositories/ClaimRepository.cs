@@ -43,6 +43,19 @@ public class ClaimRepository : IClaimRepository
             .AsNoTracking()
             .AsQueryable();
 
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim();
+
+            claims = claims.Where(claim =>
+                EF.Functions.Like(
+                    claim.ClaimNumber,
+                    $"%{search}%") ||
+                EF.Functions.Like(
+                    claim.Description,
+                    $"%{search}%"));
+        }
+
         if (!string.IsNullOrWhiteSpace(query.Status) &&
             Enum.TryParse<ClaimStatus>(
                 query.Status,
@@ -54,14 +67,18 @@ public class ClaimRepository : IClaimRepository
 
         if (query.FromDate.HasValue)
         {
+            var fromDate = query.FromDate.Value.Date;
+
             claims = claims.Where(
-                claim => claim.SubmittedAt >= query.FromDate.Value);
+                claim => claim.SubmittedAt >= fromDate);
         }
 
         if (query.ToDate.HasValue)
         {
+            var exclusiveEndDate = query.ToDate.Value.Date.AddDays(1);
+
             claims = claims.Where(
-                claim => claim.SubmittedAt <= query.ToDate.Value);
+                claim => claim.SubmittedAt < exclusiveEndDate);
         }
 
         var totalCount = await claims.CountAsync(cancellationToken);
