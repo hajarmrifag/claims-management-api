@@ -55,7 +55,7 @@ Claims processing is more than CRUD: users need clear validation, predictable lo
 
 - Multi-stage Docker build compiles the React client and .NET API into one image
 - The production container runs as the built-in unprivileged .NET user
-- Render Blueprint provisions the web service and PostgreSQL database
+- Render Blueprint provisions the free web service; Neon Free hosts PostgreSQL
 - GitHub Actions independently lint, test, and build frontend and backend
 - CodeQL, Trivy, Dependabot, and OWASP ZAP provide automated security analysis
 - Secrets are supplied through environment configuration and are not committed
@@ -110,6 +110,22 @@ TanStack Query owns remote state; authentication uses a small context backed by 
 Business endpoints require a bearer token. Status changes additionally require the `Manager` or `Admin` role.
 
 ## Run locally
+
+### Free portfolio deployment
+
+The public demo uses a Render Free web service and a Neon Free PostgreSQL database.
+Render's free PostgreSQL trial expires after 30 days, so the Blueprint deliberately
+does not provision a Render database. Set `DATABASE_URL` in the Render dashboard
+to your Neon connection URL with TLS enabled; never commit it. `sync: false`
+preserves this secret across Blueprint syncs. Both the Blueprint and web service
+should track `main`. Free-tier usage limits and cold starts still apply.
+
+When moving an existing deployment, export with `pg_dump`, restore into an empty
+database with `pg_restore --no-owner --no-acl --exit-on-error`, verify the data,
+then update `DATABASE_URL` and deploy. Keep the old database until the new
+connection and application workflows have been verified.
+
+### Local development
 
 Requirements: Docker Desktop, .NET 10 SDK, and Node.js 24.
 
