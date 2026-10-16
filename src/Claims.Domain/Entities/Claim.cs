@@ -45,6 +45,9 @@ public class Claim
 
     public void UpdateStatus(ClaimStatus status)
     {
+        if (!Enum.IsDefined(status))
+            throw new ArgumentOutOfRangeException(nameof(status), "Undefined claim status.");
+
         Status = status;
         UpdatedAt = DateTime.UtcNow;
     }

@@ -6,6 +6,7 @@
     <Project Path="src/Claims.Infrastructure/Claims.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Claims.PostgresTests/Claims.PostgresTests.csproj" />
     <Project Path="tests/Claims.IntegrationTests/Claims.IntegrationTests.csproj" />
     <Project Path="tests/Claims.UnitTests/Claims.UnitTests.csproj" />
   </Folder>

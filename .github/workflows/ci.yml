@@ -12,7 +12,19 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: claims_test
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U claims_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
+      CLAIMS_TEST_ADMIN_URL: "Host=localhost;Port=5432;Username=claims_test;Password=${{ github.run_id }}-${{ github.run_attempt }};Database=postgres"
       ASPNETCORE_ENVIRONMENT: Development
       Jwt__Key: "CI-only-signing-key-for-claims-management-api-2026-secure"
       ConnectionStrings__ClaimsDatabase: "Server=localhost;Database=ClaimsManagementDb;User Id=sa;Password=CI_Password_123!;TrustServerCertificate=True"
