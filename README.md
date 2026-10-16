@@ -1,178 +1,55 @@
 # Aegis Claims
 
-[![CI](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/ci.yml)
-[![Security](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/security.yml)
-[![DAST](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml)
-[![Live demo](https://img.shields.io/badge/live_demo-Render-46E3B7)](https://claims-management-ync9.onrender.com)
+**A claim has a history. Every action has an access boundary.**
 
-A portfolio full-stack application for submitting, reviewing, and auditing insurance claims. Aegis pairs a polished, responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
+A React/TypeScript claims workspace backed by ASP.NET Core and PostgreSQL. Create customers, policies and claims; review evidence; inspect recorded status changes.
 
-**[Open the live application](https://claims-management-ync9.onrender.com)**
+**[Open the application](https://claims-management-ync9.onrender.com/)** · [Design decisions](docs/engineering-decisions.md) · [Security assessment](docs/security/assessment-report.md) · [API & setup](docs/application-guide.md)
 
-> The free Render instance may need about 50 seconds to wake after inactivity. Create an account from the sign-in page; public registration safely assigns the `Adjuster` role.
-
-## Engineering evidence
-
-Inspect the [layered architecture and decisions](docs/engineering-decisions.md), [status service](src/Claims.Application/Claims/ClaimService.cs), [HTTP tests](tests/Claims.IntegrationTests), and [real PostgreSQL constraint/rollback tests](tests/Claims.PostgresTests). [Verification instructions and limits](docs/verification.md) distinguish HTTP InMemory coverage from relational checks. Status changes are role-restricted and recorded, not a strict lifecycle state machine. Scanner workflows and passing tests are not production-security certification.
-
-## Why this project exists
-
-Claims processing is more than CRUD: users need clear validation, predictable loading and error states, guarded routes, role-aware actions, auditable status transitions, and safe document handling. This project implements those concerns end to end rather than presenting disconnected screens.
-
-## Product capabilities
-
-- Register and sign in with JWT authentication
-- Create a customer, policy, and claim through a guided workflow
-- Search claims by number or description, then filter by status and date with server-side pagination
-- Review claim details and status history
-- Restrict status changes to `Manager` and `Admin` roles
-- Upload and download PDF, JPEG, and PNG evidence up to 10 MB
-- Handle loading, validation, empty, unauthorized, and API-error states
-- Use the application across desktop and mobile layouts
-
-## Engineering highlights
-
-### Frontend
-
-- React 19 and TypeScript with strict compilation
-- React Router for public, protected, detail, and not-found routes
-- TanStack Query for server state, caching, mutations, and request states
-- React Hook Form and Zod for typed form validation
-- Axios client with centralized authentication behavior
-- Accessible labels, live status messages, error alerts, and keyboard-native controls
-- ESLint, Vitest, and Testing Library checks in CI
-- Playwright browser testing for the authentication-to-workspace journey
-
-### Backend
-
-- ASP.NET Core and C# with domain, application, infrastructure, and API layers
-- Entity Framework Core with PostgreSQL in production and SQL Server support locally
-- JWT authentication, password hashing, and role-based authorization
-- Authentication endpoint rate limiting and browser defence-in-depth headers
-- Auditable claim status workflow and duplicate-number protection
-- Document size, type, filename, and magic-byte validation
-- Storage abstraction supporting local files and Azure Blob Storage
-- Central exception handling, structured request logging, and health checks
-- xUnit unit tests and HTTP integration tests
-
-### Delivery
-
-- Multi-stage Docker build compiles the React client and .NET API into one image
-- The production container runs as the built-in unprivileged .NET user
-- Render Blueprint provisions the free web service; Neon Free hosts PostgreSQL
-- GitHub Actions independently lint, test, and build frontend and backend
-- CodeQL, Trivy, Dependabot, and OWASP ZAP provide automated security analysis
-- Secrets are supplied through environment configuration and are not committed
-
-## Application security case study
-
-This repository includes a source-assisted security assessment rather than only
-claiming that the application is "secure." The artifacts show how threats were
-identified, classified, remediated, regression-tested, and carried into CI:
-
-- [Threat model](docs/security/threat-model.md) - assets, trust boundaries,
-  assumptions, and STRIDE abuse cases
-- [Assessment report](docs/security/assessment-report.md) - severity, CWE and
-  OWASP mappings, remediation, residual risk, and verification status
-- [Security policy](SECURITY.md) - safe reporting expectations and project scope
-
-The security workflows run CodeQL SAST, Trivy dependency/secret/configuration and
-container scans, and an OWASP ZAP DAST baseline. Generated scan results remain in
-GitHub's security view or workflow artifacts so the documentation does not invent
-tool output that has not run.
-
-## Architecture
+## Where the rules live
 
 ```mermaid
-flowchart LR
-    Browser[React + TypeScript] -->|HTTPS / JSON| API[ASP.NET Core API]
-    API --> Auth[JWT authentication]
-    API --> App[Application services]
-    App --> Domain[Domain model]
-    API --> Infra[Infrastructure]
-    Infra --> DB[(PostgreSQL / SQL Server)]
-    Infra --> Files[Local / Azure Blob storage]
+flowchart TD
+    UI[React workspace] --> API[ASP.NET Core API]
+    API --> Gate[JWT and role checks]
+    Gate --> Service[Application services]
+    Service --> Rules[Domain rules]
+    Service --> Data[EF Core persistence]
+    Service --> Files[Document storage]
+    Data --> DB[(PostgreSQL)]
+    Files --> Store[Local files or Azure Blob]
 ```
 
-TanStack Query owns remote state; authentication uses a small context backed by session storage. The API owns authorization, defined-status validation and history—the UI improves usability but is never treated as a security boundary. See [engineering decisions](docs/engineering-decisions.md) for trade-offs and alternatives.
+The API enforces authorization. Client route guards and role-aware controls help users navigate; they do not grant access. Frontend and API ship in one container and share an origin.
 
-## API surface
+## Three decisions to inspect
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/api/auth/register` | Register an Adjuster |
-| `POST` | `/api/auth/login` | Authenticate and receive a JWT |
-| `POST` | `/api/customers` | Create a customer |
-| `POST` | `/api/policies` | Create a policy |
-| `POST` | `/api/claims` | Create a claim |
-| `GET` | `/api/claims` | Filter and paginate claims |
-| `GET` | `/api/claims/{id}` | Retrieve a claim and its history |
-| `PATCH` | `/api/claims/{id}/status` | Make an authorized status transition |
-| `POST` | `/api/claims/{id}/documents` | Upload claim evidence |
-| `GET` | `/api/claims/{claimId}/documents/{documentId}` | Download evidence |
+| Concern | Implemented behavior | Evidence |
+| --- | --- | --- |
+| Status changes | Only Manager/Admin can change a defined status; changes add history, repeated status is a no-op. | [Controller](src/Claims.API/Controllers/ClaimsController.cs), [service](src/Claims.Application/Claims/ClaimService.cs) |
+| Uploaded evidence | PDF/JPEG/PNG size, name, declared type and file signature are validated. | [Threat model](docs/security/threat-model.md) |
+| Persistence | Separate domain, application, infrastructure and HTTP layers; PostgreSQL deployment with a SQL Server development option. | [Trade-offs](docs/engineering-decisions.md) |
 
-Business endpoints require a bearer token. Status changes additionally require the `Manager` or `Admin` role.
+This is defined-status validation, **not a strict lifecycle state machine**. Tenant ownership and optimistic concurrency are not implemented.
+
+## Verification that distinguishes the layers
+
+The recorded backend run passed **22 tests**: 11 domain/application, eight HTTP integration and three real PostgreSQL tests. HTTP tests use EF InMemory; the PostgreSQL suite checks unique/foreign-key constraints and rollback. Neither establishes SQL Server parity or concurrency safety.
+
+[Verification record](docs/verification-results.md) · [Run the tests](docs/verification.md) · [HTTP tests](tests/Claims.IntegrationTests/) · [PostgreSQL tests](tests/Claims.PostgresTests/)
+
+Frontend checks and a Playwright authentication journey run in CI. CodeQL, Trivy and ZAP workflows supplement the [source-assisted security assessment](docs/security/assessment-report.md); they are not security certification.
 
 ## Run locally
 
-### Free portfolio deployment
+Requires **Docker Desktop, .NET 10 SDK and Node.js 24**.
 
-The public demo uses a Render Free web service and a Neon Free PostgreSQL database.
-Render's free PostgreSQL trial expires after 30 days, so the Blueprint deliberately
-does not provision a Render database. Set `DATABASE_URL` in the Render dashboard
-to your Neon connection URL with TLS enabled; never commit it. `sync: false`
-preserves this secret across Blueprint syncs. Both the Blueprint and web service
-should track `main`. Free-tier usage limits and cold starts still apply.
-
-When moving an existing deployment, export with `pg_dump`, restore into an empty
-database with `pg_restore --no-owner --no-acl --exit-on-error`, verify the data,
-then update `DATABASE_URL` and deploy. Keep the old database until the new
-connection and application workflows have been verified.
-
-### Local development
-
-Requirements: Docker Desktop, .NET 10 SDK, and Node.js 24.
-
-```bash
+```sh
 git clone https://github.com/hajarmrifag/claims-management-api.git
 cd claims-management-api
 ./run.sh
 ```
 
-Then open `http://localhost:5173`. The launcher starts SQL Server and both application processes.
+Open **http://localhost:5173**. The launcher starts SQL Server and both application processes. [Quality checks, endpoint reference and deployment](docs/application-guide.md).
 
-Run the quality checks directly:
-
-```bash
-dotnet test
-cd frontend
-npm ci
-npm run lint
-npm test
-npm run test:e2e
-npm run build
-```
-
-## Security and operational boundaries
-
-- Public registration cannot choose a privileged role.
-- Passwords are hashed; credentials and JWT signing keys stay outside source control.
-- Authorization is enforced by the API, including status-changing operations.
-- Login and registration requests are rate limited per source address.
-- Uploaded documents must match the declared PDF, JPEG, or PNG file signature.
-- Production responses use HSTS and restrictive browser security headers.
-- Search uses bounded pagination and no-tracking EF queries.
-- The free demo stores uploaded file bytes on ephemeral container storage, so files may be lost after a restart. Production would use the existing Azure Blob provider or another durable object store.
-- Render hosts the public portfolio deployment. The container could run on AWS, but this repository does not claim an AWS deployment that has not been implemented.
-
-## Next improvements
-
-- Expand Playwright coverage to claim creation, filtering, and documents
-- Add durable object storage to the public deployment
-- Add OpenTelemetry traces and production dashboards
-- Express an AWS deployment as infrastructure as code
-- Expand frontend tests around authentication, filters, and mutations
-
-## What this demonstrates
-
-This repository provides evidence of typed React development, API integration, form validation, server-state management, responsive product design, backend architecture, security-aware implementation, automated testing, containerization, CI, and cloud deployment. Its documentation makes the main technical decisions available for review and discussion.
+For the live demo, register from the sign-in page to receive the Adjuster role. The free instance may need time to wake. Uploaded files use ephemeral container storage and can disappear after a restart; the Azure Blob provider is available for durable storage. [Remaining risks and planned improvements](docs/application-guide.md#security-and-operational-boundaries).
