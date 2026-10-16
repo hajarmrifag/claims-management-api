@@ -5,11 +5,15 @@
 [![DAST](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml/badge.svg)](https://github.com/hajarmrifag/claims-management-api/actions/workflows/dast.yml)
 [![Live demo](https://img.shields.io/badge/live_demo-Render-46E3B7)](https://claims-management-ync9.onrender.com)
 
-A production-style full-stack application for submitting, reviewing, and auditing insurance claims. Aegis pairs a polished, responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
+A portfolio full-stack application for submitting, reviewing, and auditing insurance claims. Aegis pairs a polished, responsive React and TypeScript interface with an ASP.NET Core API, role-based workflows, PostgreSQL persistence, automated tests, and a Docker deployment.
 
 **[Open the live application](https://claims-management-ync9.onrender.com)**
 
 > The free Render instance may need about 50 seconds to wake after inactivity. Create an account from the sign-in page; public registration safely assigns the `Adjuster` role.
+
+## Engineering evidence
+
+Inspect the [layered architecture and decisions](docs/engineering-decisions.md), [status service](src/Claims.Application/Claims/ClaimService.cs), [HTTP tests](tests/Claims.IntegrationTests), and [real PostgreSQL constraint/rollback tests](tests/Claims.PostgresTests). [Verification instructions and limits](docs/verification.md) distinguish HTTP InMemory coverage from relational checks. Status changes are role-restricted and recorded, not a strict lifecycle state machine. Scanner workflows and passing tests are not production-security certification.
 
 ## Why this project exists
 
@@ -90,7 +94,7 @@ flowchart LR
     Infra --> Files[Local / Azure Blob storage]
 ```
 
-TanStack Query owns remote state; authentication uses a small context backed by session storage. The API owns authorization and workflow rules—the UI improves usability but is never treated as a security boundary. See [engineering decisions](docs/engineering-decisions.md) for trade-offs and alternatives.
+TanStack Query owns remote state; authentication uses a small context backed by session storage. The API owns authorization, defined-status validation and history—the UI improves usability but is never treated as a security boundary. See [engineering decisions](docs/engineering-decisions.md) for trade-offs and alternatives.
 
 ## API surface
 

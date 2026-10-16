@@ -22,7 +22,7 @@ The API returns a short-lived JWT with role claims. The client keeps it in sessi
 
 ## Layered backend
 
-Domain rules, use cases, persistence, and HTTP concerns live in separate projects. Workflow rules can be tested without hosting the API, and storage implementations can change behind interfaces.
+Domain rules, use cases, persistence, and HTTP concerns live in separate projects. Status validation can be tested without hosting the API, and storage implementations can change behind interfaces.
 
 **Trade-off:** this has more ceremony than a small CRUD service needs. It is justified here by role-based workflows, audit history, and multiple infrastructure providers.
 
@@ -32,7 +32,7 @@ The Docker build compiles the Vite application and places its static output in A
 
 **Trade-off:** frontend and backend cannot scale or deploy independently. A higher-traffic system could use a CDN for static assets and operate the API separately.
 
-## PostgreSQL on Render, SQL Server locally
+## PostgreSQL deployment, SQL Server development option
 
 EF Core uses PostgreSQL for the live free-tier deployment while retaining SQL Server locally. Domain and application layers do not depend on either provider.
 
@@ -40,6 +40,11 @@ EF Core uses PostgreSQL for the live free-tier deployment while retaining SQL Se
 
 ## Testing strategy
 
-Domain unit tests cover workflow rules. API integration tests cover authentication, authorization, customer-to-policy-to-claim flows, and documents. Frontend component tests cover critical rendering and failure states. CI also performs linting and production compilation.
+Domain/application tests cover defined-status validation, mutation/history behavior and idempotent same-status updates. API integration tests cover authentication, authorization, customer-to-policy-to-claim flows, and documents. Frontend component tests cover critical rendering and failure states. CI also performs linting and production compilation.
 
-**Trade-off:** the suite does not yet exercise the full system in a real browser. Playwright end-to-end tests are the next highest-value addition.
+Playwright already covers a browser authentication journey in CI. The new PostgreSQL suite verifies unique/FK constraints and explicit rollback in fresh isolated databases; HTTP tests continue to use EF InMemory. Neither suite establishes complete concurrency safety or SQL Server parity. See [verification instructions](verification.md).
+
+
+## Status policy
+
+Manager/Admin roles may change a claim to any named, defined status; the API rejects numeric/undefined/composite inputs. A repeated status is a no-op and does not add history. No state-transition graph, tenant ownership or optimistic-concurrency token is claimed. Defining payment/reopening business policy would require product rules; this maintenance change does not invent them.

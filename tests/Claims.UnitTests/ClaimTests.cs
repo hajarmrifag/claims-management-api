@@ -33,4 +33,15 @@ public class ClaimTests
         Assert.Equal(ClaimStatus.Approved, claim.Status);
         Assert.NotNull(claim.UpdatedAt);
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(999)]
+    public void UndefinedStatus_ShouldNotMutateClaim(int status)
+    {
+        var claim = new Claim("CLM-invalid", Guid.NewGuid(), Guid.NewGuid(), "Test", 1m);
+        Assert.Throws<ArgumentOutOfRangeException>(() => claim.UpdateStatus((ClaimStatus)status));
+        Assert.Equal(ClaimStatus.Submitted, claim.Status);
+        Assert.Null(claim.UpdatedAt);
+    }
 }

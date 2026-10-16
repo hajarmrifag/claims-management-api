@@ -103,10 +103,11 @@ public class ClaimService
             return null;
         }
 
-        if (!Enum.TryParse<ClaimStatus>(
+        if (!Enum.GetNames<ClaimStatus>().Contains(request.Status, StringComparer.OrdinalIgnoreCase)
+            || !Enum.TryParse<ClaimStatus>(
                 request.Status,
                 true,
-                out var newStatus))
+                out var newStatus) || !Enum.IsDefined(newStatus))
         {
             throw new ArgumentException(
                 $"Invalid claim status '{request.Status}'.");
